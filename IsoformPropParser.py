@@ -19,7 +19,6 @@ def calcRenyiDiv(mat, alpha):
 class IsoformPropArr:
     def __init__(self, isoformName, groupIdx, prop):
         self.prop = {0: {}, 1: {}}
-
         self.prop[groupIdx - 1][isoformName] = prop
 
     def append(self, isoformName, groupIdx, prop):
@@ -60,6 +59,8 @@ class IsoformPropArr:
         else:
             return -1
 
+    def getProp(self,isoformNames):
+        return([[self.prop[0][x] for x in isoformNames],[self.prop[1][x] for x in isoformNames]])
 
 class IsoformPropParser:
     def __init__(self, line):
@@ -121,3 +122,6 @@ class IsoformPropParser:
             hellD = value.getRenyiDiv(alpha, self.isoformList)
             hellingerDist.append(hellD)
         return hellingerDist
+
+    def getAllProps(self):
+        for key,value in 

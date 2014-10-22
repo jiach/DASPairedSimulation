@@ -6,6 +6,8 @@ cairo_pdf('histHellDist.pdf', width = 6, height = 4, onefile = T, family = 'Lekt
 hist(one[one[,2]>0,2])
 dev.off()
 
+sum(one[,2]<0)
+
 hista<-hist(one[one[,2]>0,2],plot = F)
 length(hista$breaks[1:(length(hista$breaks)-1)])
 length(hista$density)

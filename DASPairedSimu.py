@@ -3,24 +3,12 @@
 import simu_pairdas
 import os
 
-
 cwd = os.getenv("HOME") + "/Dropbox/Dissertation_2014/DAS_Paird/DASPairedSimulation/"
 fname = cwd + "allresult_filtered.txt"
+pct = 20
 
-gene_arr = {}
-with open(fname, 'r') as fin:
-    for line in fin:
-        gene_name = line.split('\t')[0]
-        if gene_name in gene_arr:
-            gene_arr[gene_name].append(line)
-        else:
-            gene_arr[gene_name] = simu_pairdas.IsoformPropParser(line)
+gene_arr = simu_pairdas.read_in_gene_arr(fname)
+genes_picked = simu_pairdas.pick_null_alt_genes(gene_arr,pct)
 
-
-
-    # for key, value in gene_arr.iteritems():
-    #     # hellDistList = value.getRenyiDiv(3)
-    #     hellDistList = value.getHellingerDistance(False)
-    #     for i in range(value.getNumSubjects()):
-    #         print(key + "\t" + str(hellDistList[i]))
-
+for null_gene in genes_picked[0]:
+    gene_arr[null_gene].
