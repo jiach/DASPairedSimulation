@@ -35,5 +35,7 @@ def fetch_gene_iso_comp(gene_arr, genes_picked):
     :param genes_picked: gene list[0] or list[1] generated from pick_null_alt_genes function,
     :return: array of iso_comp
     """
+
+    isocomp_arr = []
     for i in range(len(genes_picked)):
-        print gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1])
+        isocomp_arr.append(gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1]))
