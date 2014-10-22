@@ -51,8 +51,10 @@ class IsoformPropArr:
 
     def getHellingerDistance(self, isoformNames):
         sumSqDiff = 0
+        sum_before = sum(self.prop[0].values())
+        sum_after = sum(self.prop[1].values())
         if len(isoformNames.difference(self.prop[0].keys())) == 0 and len(
-                isoformNames.difference(self.prop[1].keys())) == 0:
+                isoformNames.difference(self.prop[1].keys())) == 0 and sum_before > 0.5 and sum_after > 0.5:
             for isoform in list(isoformNames):
                 sumSqDiff += (math.sqrt(self.prop[0][isoform]) - math.sqrt(self.prop[1][isoform])) ** 2
             return math.sqrt(sumSqDiff / 2)
@@ -73,6 +75,14 @@ class IsoformPropArr:
         else:
             return -1
 
+    def getProp(self, isoformNames):
+        iso_prop_mat = ([], [], [])
+        isoformNames = list(isoformNames)
+        for i in range(len(isoformNames)):
+            iso_prop_mat[0].append(isoformNames[i])
+            iso_prop_mat[1].append(self.prop[0][isoformNames[i]])
+            iso_prop_mat[2].append(self.prop[1][isoformNames[i]])
+        return iso_prop_mat
 
 class IsoformPropParser:
     def __init__(self, line):
@@ -130,9 +140,34 @@ class IsoformPropParser:
     def getAverageHellingerDistance(self):
         return np.mean(self.getHellingerDistance(False))
 
+    def getMinMaxHellingerDistance(self):
+        all_hell_darr = self.getHellingerDistance(False)
+        non_neg_hell_darr = []
+        non_neg = False
+        min_max = dict()
+        for x in all_hell_darr:
+            if x >= 0:
+                non_neg_hell_darr.append(x)
+                non_neg = True
+        if non_neg:
+            min_non_neg_hell_d = np.min(non_neg_hell_darr)
+            min_max['min'] = (min_non_neg_hell_d, all_hell_darr.index(min_non_neg_hell_d))
+        else:
+            min_max['min'] = (-1, -1)
+
+        min_max['max'] = (np.max(all_hell_darr), np.argmax(all_hell_darr))
+
+        return min_max
+
     def getRenyiDiv(self, alpha):
         hellingerDist = []
         for value in self.subjectProp.values():
             hellD = value.getRenyiDiv(alpha, self.isoformList)
             hellingerDist.append(hellD)
         return hellingerDist
+
+    def getIsoComp(self, subjectIdx):
+        if subjectIdx > self.getNumSubjects():
+            return None
+        else:
+            return self.subjectProp[subjectIdx].getProp(self.isoformList)

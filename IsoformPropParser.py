@@ -124,4 +124,4 @@ class IsoformPropParser:
         return hellingerDist
 
     def getAllProps(self):
-        for key,value in 
+        pass
