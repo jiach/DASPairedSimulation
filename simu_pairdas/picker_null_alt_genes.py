@@ -1,6 +1,7 @@
 __author__ = 'cheng'
 import operator
 from scipy.stats import truncnorm
+from parser_isoform_comp import *
 
 def pick_null_alt_genes(gene_arr, pct):
     """
@@ -71,7 +72,7 @@ class geneArrReader:
     def __init__(self, fname):
         self.gene_arr = self.read_in_gene_arr(fname)
 
-    def read_in_gene_arr(fname):
+    def read_in_gene_arr(self, fname):
         gene_arr = {}
         with open(fname, 'r') as fin:
             for line in fin:
@@ -81,3 +82,6 @@ class geneArrReader:
                 else:
                     gene_arr[gene_name] = IsoformPropParser(line)
         return gene_arr
+
+    def fetch_gene(self, gene_name):
+        return self.gene_arr[gene_name]
