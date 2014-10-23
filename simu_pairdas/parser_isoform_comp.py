@@ -21,16 +21,6 @@ def calcRenyiDiv(mat, alpha):
 def calcHellingerDistance(mat):
     return math.sqrt(sum([(math.sqrt(mat[0][i])-math.sqrt(mat[1][i])) ** 2 for i in range(len(mat[0]))])/2)
 
-def read_in_gene_arr(fname):
-    gene_arr = {}
-    with open(fname, 'r') as fin:
-        for line in fin:
-            gene_name = line.split('\t')[0]
-            if gene_name in gene_arr:
-                gene_arr[gene_name].append(line)
-            else:
-                gene_arr[gene_name] = IsoformPropParser(line)
-    return gene_arr
 
 class IsoformPropArr:
     def __init__(self, isoformName, groupIdx, prop):

@@ -1,7 +1,6 @@
 __author__ = 'cheng'
 import operator
 from scipy.stats import truncnorm
-import parser_isoform_comp as pic
 
 def pick_null_alt_genes(gene_arr, pct):
     """
@@ -45,9 +44,10 @@ def fetch_gene_iso_comp(gene_arr, genes_picked):
         isocomp_arr.append(gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1]))
     return isocomp_arr
 
-def add_dither_to_isocomp(isocomp_arr):
+def add_dither_to_isocomp(isocomp_arr, num_subjects):
     """
-    :param isocomp__arr: list of isoform compositions output from fetch_gene_iso_comp
+    :param isocomp_arr:list of isoform compositions output from fetch_gene_iso_comp
+    :param num_subjects: sample size that you need to multiply the original isocomp by.
     :return:  list of dithered isoform compositions
     """
     dithered_isocomp_arr = []
@@ -65,3 +65,19 @@ def normalize_dithered_compositions(mat):
         col_sum = sum(mat[i])
         for j in range(len(mat[i])):
             mat[i][j] = mat[i][j]/col_sum
+
+
+class geneArrReader:
+    def __init__(self, fname):
+        self.gene_arr = self.read_in_gene_arr(fname)
+
+    def read_in_gene_arr(fname):
+        gene_arr = {}
+        with open(fname, 'r') as fin:
+            for line in fin:
+                gene_name = line.split('\t')[0]
+                if gene_name in gene_arr:
+                    gene_arr[gene_name].append(line)
+                else:
+                    gene_arr[gene_name] = IsoformPropParser(line)
+        return gene_arr
