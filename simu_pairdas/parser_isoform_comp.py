@@ -13,11 +13,13 @@ def calcRenyiDiv(mat, alpha):
     elif alpha == 1:
         return sum(
             [-2 * mat[0][i] * (math.log(max(sys.float_info.min, mat[0][i]) / max(sys.float_info.min, mat[1][i]))) for i
-             in range(len(mat))])
+             in range(len(mat[0]))])
     else:
         return sum([1 / (1 - alpha) * (alpha * math.log(max(sys.float_info.min, mat[0][i]))) - (alpha - 1) * math.log(
-            max(sys.float_info.min, mat[1][i])) for i in range(len(mat))])
+            max(sys.float_info.min, mat[1][i])) for i in range(len(mat[0]))])
 
+def calcHellingerDistance(mat):
+    return math.sqrt(sum([(math.sqrt(mat[0][i])-math.sqrt(mat[1][i])) ** 2 for i in range(len(mat[0]))])/2)
 
 def read_in_gene_arr(fname):
     gene_arr = {}
@@ -50,14 +52,15 @@ class IsoformPropArr:
             return False
 
     def getHellingerDistance(self, isoformNames):
-        sumSqDiff = 0
         sum_before = sum(self.prop[0].values())
         sum_after = sum(self.prop[1].values())
+        prop_mat = [[], []]
         if len(isoformNames.difference(self.prop[0].keys())) == 0 and len(
                 isoformNames.difference(self.prop[1].keys())) == 0 and sum_before > 0.5 and sum_after > 0.5:
             for isoform in list(isoformNames):
-                sumSqDiff += (math.sqrt(self.prop[0][isoform]) - math.sqrt(self.prop[1][isoform])) ** 2
-            return math.sqrt(sumSqDiff / 2)
+                prop_mat[0].append(self.prop[0][isoform])
+                prop_mat[1].append(self.prop[1][isoform])
+            return calcHellingerDistance(prop_mat)
         else:
             return -1
 
