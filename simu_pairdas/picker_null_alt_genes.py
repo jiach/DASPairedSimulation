@@ -27,7 +27,14 @@ def pick_null_alt_genes(gene_arr, pct):
 
     first_pct =sorted_gene_by_min_helld[0:num_picked]
     last_pct = sorted_gene_by_max_helld[-num_picked:]
-    return([first_pct,last_pct])
+
+    first_names = set([x[0] for x in first_pct])
+
+    for i in range(len(last_pct)):
+        if last_pct[i][0] in first_names:
+            last_pct[i][0] += "_1"
+
+    return [first_pct, last_pct]
 
 
 def fetch_gene_iso_comp(gene_arr, genes_picked):
@@ -42,7 +49,7 @@ def fetch_gene_iso_comp(gene_arr, genes_picked):
 
     isocomp_arr = []
     for i in range(len(genes_picked)):
-        isocomp_arr.append(gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1]))
+        isocomp_arr.append(gene_arr.gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1]))
     return isocomp_arr
 
 def add_dither_to_isocomp(isocomp_arr, num_subjects):
@@ -53,19 +60,27 @@ def add_dither_to_isocomp(isocomp_arr, num_subjects):
     """
     dithered_isocomp_arr = []
     for i in range(len(isocomp_arr)):
-        cur_isocomp_arr = [[], []]
-        for j in range(len(isocomp_arr[i][1])):
-            for k in range(1, 3):
-                cur_isocomp_arr[k-1].append(isocomp_arr[i][k][j]+truncnorm.rvs(loc=0, scale=0.01, a=-isocomp_arr[i][k][j], b=1, size=1)[0])
-        normalize_dithered_compositions(cur_isocomp_arr)
-        dithered_isocomp_arr.append([isocomp_arr[i][0]]+cur_isocomp_arr)
+        dithered_isocomp_arr.append(normalize_dither_compositions(isocomp_arr[i],num_subjects))
     return dithered_isocomp_arr
 
-def normalize_dithered_compositions(mat):
-    for i in range(len(mat)):
-        col_sum = sum(mat[i])
-        for j in range(len(mat[i])):
-            mat[i][j] = mat[i][j]/col_sum
+def normalize_dither_compositions(mat, num_subjects):
+    iso_name = [""]*(len(mat[0])*num_subjects)
+    before = [0]*(len(mat[0])*num_subjects)
+    after = [0]*(len(mat[0])*num_subjects)
+
+    for t in range(num_subjects):
+        sum_before = 0
+        sum_after = 0
+        for i in range(len(mat[0])):
+            iso_name[t*len(mat[0])+i] = mat[0][i]
+            before[t*len(mat[0])+i] = mat[1][i]+truncnorm.rvs(loc=0, scale=0.01, a=-mat[1][i], b=1-mat[1][i], size=1)[0]
+            after[t*len(mat[0])+i] = mat[2][i]+truncnorm.rvs(loc=0, scale=0.01, a=-mat[2][i], b=1-mat[2][i], size=1)[0]
+            sum_before = sum_before + before[t*len(mat[0])+i]
+            sum_after = sum_after + after[t*len(mat[0])+i]
+        for i in range(len(mat[0])):
+            before[t*len(mat[0])+i] = before[t*len(mat[0])+i]/sum_before
+            after[t*len(mat[0])+i] = before[t*len(mat[0])+i]/sum_after
+    return [iso_name,before,after]
 
 
 class geneArrReader:

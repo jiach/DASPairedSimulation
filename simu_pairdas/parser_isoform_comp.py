@@ -54,6 +54,9 @@ class IsoformPropArr:
         else:
             return -1
 
+    def __str__(self):
+        return "\n".join(["\t".join([y+":="+str(self.prop[x][y]) for y in self.prop[x].keys()]) for x in [0, 1]])
+
     def printAll(self):
         print(self.prop)
 
@@ -164,3 +167,6 @@ class IsoformPropParser:
             return None
         else:
             return self.subjectProp[subjectIdx].getProp(self.isoformList)
+
+    def __str__(self):
+        return "\n".join([str(x)+":\n"+self.subjectProp[x].__str__() for x in self.subjectProp.keys()])
