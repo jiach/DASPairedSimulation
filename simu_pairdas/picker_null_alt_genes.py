@@ -3,6 +3,7 @@ import operator
 from scipy.stats import truncnorm
 from parser_isoform_comp import *
 
+
 def pick_null_alt_genes(gene_arr, pct):
     """
 
@@ -14,18 +15,18 @@ def pick_null_alt_genes(gene_arr, pct):
     gene_min_helld = {}
 
     for key, value in gene_arr.iteritems():
-            # hellDistList = value.getRenyiDiv(3)
-            min_max = value.getMinMaxHellingerDistance()
-            gene_max_helld[key] = min_max['max']
-            cur_min_helld = min_max['min']
-            if cur_min_helld[0] >= 0:
-                gene_min_helld[key] = cur_min_helld
+        # hellDistList = value.getRenyiDiv(3)
+        min_max = value.getMinMaxHellingerDistance()
+        gene_max_helld[key] = min_max['max']
+        cur_min_helld = min_max['min']
+        if cur_min_helld[0] >= 0:
+            gene_min_helld[key] = cur_min_helld
 
-    sorted_gene_by_max_helld = sorted(gene_max_helld.items(), key = operator.itemgetter(1))
-    sorted_gene_by_min_helld = sorted(gene_min_helld.items(), key = operator.itemgetter(1))
-    num_picked = int(len(sorted_gene_by_max_helld)*pct/100)
+    sorted_gene_by_max_helld = sorted(gene_max_helld.items(), key=operator.itemgetter(1))
+    sorted_gene_by_min_helld = sorted(gene_min_helld.items(), key=operator.itemgetter(1))
+    num_picked = int(len(sorted_gene_by_max_helld) * pct / 100)
 
-    first_pct =sorted_gene_by_min_helld[0:num_picked]
+    first_pct = sorted_gene_by_min_helld[0:num_picked]
     last_pct = sorted_gene_by_max_helld[-num_picked:]
 
     first_names = set([x[0] for x in first_pct])
@@ -52,6 +53,7 @@ def fetch_gene_iso_comp(gene_arr, genes_picked):
         isocomp_arr.append(gene_arr.gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1]))
     return isocomp_arr
 
+
 def add_dither_to_isocomp(isocomp_arr, num_subjects):
     """
     :param isocomp_arr:list of isoform compositions output from fetch_gene_iso_comp
@@ -60,27 +62,30 @@ def add_dither_to_isocomp(isocomp_arr, num_subjects):
     """
     dithered_isocomp_arr = []
     for i in range(len(isocomp_arr)):
-        dithered_isocomp_arr.append(normalize_dither_compositions(isocomp_arr[i],num_subjects))
+        dithered_isocomp_arr.append(normalize_dither_compositions(isocomp_arr[i], num_subjects))
     return dithered_isocomp_arr
 
+
 def normalize_dither_compositions(mat, num_subjects):
-    iso_name = [""]*(len(mat[0])*num_subjects)
-    before = [0]*(len(mat[0])*num_subjects)
-    after = [0]*(len(mat[0])*num_subjects)
+    iso_name = [""] * (len(mat[0]) * num_subjects)
+    before = [0] * (len(mat[0]) * num_subjects)
+    after = [0] * (len(mat[0]) * num_subjects)
 
     for t in range(num_subjects):
         sum_before = 0
         sum_after = 0
         for i in range(len(mat[0])):
-            iso_name[t*len(mat[0])+i] = mat[0][i]
-            before[t*len(mat[0])+i] = mat[1][i]+truncnorm.rvs(loc=0, scale=0.01, a=-mat[1][i], b=1-mat[1][i], size=1)[0]
-            after[t*len(mat[0])+i] = mat[2][i]+truncnorm.rvs(loc=0, scale=0.01, a=-mat[2][i], b=1-mat[2][i], size=1)[0]
-            sum_before = sum_before + before[t*len(mat[0])+i]
-            sum_after = sum_after + after[t*len(mat[0])+i]
+            iso_name[t * len(mat[0]) + i] = mat[0][i]
+            before[t * len(mat[0]) + i] = mat[1][i] + \
+                                          truncnorm.rvs(loc=0, scale=0.01, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
+            after[t * len(mat[0]) + i] = mat[2][i] + \
+                                         truncnorm.rvs(loc=0, scale=0.01, a=-mat[2][i], b=1 - mat[2][i], size=1)[0]
+            sum_before += before[t * len(mat[0]) + i]
+            sum_after += after[t * len(mat[0]) + i]
         for i in range(len(mat[0])):
-            before[t*len(mat[0])+i] = before[t*len(mat[0])+i]/sum_before
-            after[t*len(mat[0])+i] = before[t*len(mat[0])+i]/sum_after
-    return [iso_name,before,after]
+            before[t * len(mat[0]) + i] = before[t * len(mat[0]) + i] / sum_before
+            after[t * len(mat[0]) + i] = before[t * len(mat[0]) + i] / sum_after
+    return [iso_name, before, after]
 
 
 class geneArrReader:
