@@ -29,11 +29,11 @@ def pick_null_alt_genes(gene_arr, pct):
     first_pct = sorted_gene_by_min_helld[0:num_picked]
     last_pct = sorted_gene_by_max_helld[-num_picked:]
 
-    first_names = set([x[0] for x in first_pct])
+    # first_names = set([x[0] for x in first_pct])
 
-    for i in range(len(last_pct)):
-        if last_pct[i][0] in first_names:
-            last_pct[i][0] += "_1"
+    # for i in range(len(last_pct)):
+    #     if last_pct[i][0] in first_names:
+    #         last_pct[i][0] += "_1"
 
     return [first_pct, last_pct]
 
@@ -88,20 +88,21 @@ def normalize_dither_compositions(mat, num_subjects):
     return [iso_name, before, after]
 
 
-class geneArrReader:
+class GeneArrReader:
     def __init__(self, fname):
-        self.gene_arr = self.read_in_gene_arr(fname)
-
-    def read_in_gene_arr(self, fname):
-        gene_arr = {}
-        with open(fname, 'r') as fin:
-            for line in fin:
-                gene_name = line.split('\t')[0]
-                if gene_name in gene_arr:
-                    gene_arr[gene_name].append(line)
-                else:
-                    gene_arr[gene_name] = IsoformPropParser(line)
-        return gene_arr
+        self.gene_arr = read_in_gene_arr(fname)
 
     def fetch_gene(self, gene_name):
         return self.gene_arr[gene_name]
+
+
+def read_in_gene_arr(fname):
+    gene_arr = {}
+    with open(fname, 'r') as fin:
+        for line in fin:
+            gene_name = line.split('\t')[0]
+            if gene_name in gene_arr:
+                gene_arr[gene_name].append(line)
+            else:
+                gene_arr[gene_name] = IsoformPropParser(line)
+    return gene_arr

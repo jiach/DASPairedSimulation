@@ -38,6 +38,12 @@ class GeneAnno:
 
     def getIsoReadCounts(self, tot_reads, iso_prop):
         self.getIsoformLen()
+        read_mat = []
+        for i in range(len(iso_prop)):
+            read_mat.append([])
+            for j in range(len(self.region_len)):
+                read_mat[i].append(round(tot_reads*iso_prop[i]/self.iso_len[i]*self.region_len[j]*self.iso_major_comp_mat[i][j]))
+        return read_mat
 
 
 class RefSeqParser:
