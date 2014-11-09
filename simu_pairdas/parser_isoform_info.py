@@ -43,7 +43,13 @@ class GeneAnno:
             read_mat.append([])
             for j in range(len(self.region_len)):
                 read_mat[i].append(round(tot_reads*iso_prop[i]/self.iso_len[i]*self.region_len[j]*self.iso_major_comp_mat[i][j]))
-        return read_mat
+
+        region_sums = [0]*len(self.region_len)
+
+        for j in range(len(self.region_len)):
+            for i in range(len(iso_prop)):
+                region_sums[j] += read_mat[i][j]
+        return region_sums
 
 
 class RefSeqParser:
