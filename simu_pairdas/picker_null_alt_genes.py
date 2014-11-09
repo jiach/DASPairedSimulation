@@ -58,7 +58,7 @@ def add_dither_to_isocomp(isocomp_arr, num_subjects):
     """
     :param isocomp_arr:list of isoform compositions output from fetch_gene_iso_comp
     :param num_subjects: sample size that you need to multiply the original isocomp by.
-    :return:  list of dithered isoform compositions
+    :return:  [[]]*num_subjects. inner [] =[[iso_name],[before],[after]]
     """
     dithered_isocomp_arr = []
     for i in range(len(isocomp_arr)):
@@ -67,26 +67,24 @@ def add_dither_to_isocomp(isocomp_arr, num_subjects):
 
 
 def normalize_dither_compositions(mat, num_subjects):
-    iso_name = [""] * (len(mat[0]) * num_subjects)
-    before = [0] * (len(mat[0]) * num_subjects)
-    after = [0] * (len(mat[0]) * num_subjects)
+
+    arr_isocomp_bysub = [[]]*num_subjects
 
     for t in range(num_subjects):
-        sum_before = 0
-        sum_after = 0
-        for i in range(len(mat[0])):
-            iso_name[t * len(mat[0]) + i] = mat[0][i]
-            before[t * len(mat[0]) + i] = mat[1][i] + \
-                                          truncnorm.rvs(loc=0, scale=0.01, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
-            after[t * len(mat[0]) + i] = mat[2][i] + \
-                                         truncnorm.rvs(loc=0, scale=0.01, a=-mat[2][i], b=1 - mat[2][i], size=1)[0]
-            sum_before += before[t * len(mat[0]) + i]
-            sum_after += after[t * len(mat[0]) + i]
-        for i in range(len(mat[0])):
-            before[t * len(mat[0]) + i] = before[t * len(mat[0]) + i] / sum_before
-            after[t * len(mat[0]) + i] = before[t * len(mat[0]) + i] / sum_after
-    return [iso_name, before, after]
+        iso_name = [""]*len(mat[0])
+        before = [0] * len(mat[0])
+        after = [0] * len(mat[0])
 
+        for i in range(len(mat[0])):
+            iso_name[i] = mat[0][i]
+            before[i] = mat[1][i] + truncnorm.rvs(loc=0, scale=0.01, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
+            after[i] = mat[2][i] + truncnorm.rvs(loc=0, scale=0.01, a=-mat[2][i], b=1 - mat[2][i], size=1)[0]
+
+        for i in range(len(mat[0])):
+            before[i] = before[i] / sum(before)
+            after[i] = after[i] / sum(after)
+        arr_isocomp_bysub[t] = [iso_name, before, after]
+    return arr_isocomp_bysub
 
 class GeneArrReader:
     def __init__(self, fname):
