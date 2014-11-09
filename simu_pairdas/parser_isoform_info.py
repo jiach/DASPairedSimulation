@@ -48,7 +48,7 @@ class GeneAnno:
 
         for j in range(len(self.region_len)):
             for i in range(len(iso_prop)):
-                region_sums[j] += read_mat[i][j]
+                region_sums[j] += int(read_mat[i][j])
         return region_sums
 
 

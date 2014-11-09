@@ -69,7 +69,7 @@ def add_dither_to_isocomp(isocomp_arr, num_subjects):
     """
     dithered_isocomp_arr = {}
     for i in isocomp_arr.keys():
-        dithered_isocomp_arr[i]=normalize_dither_compositions(isocomp_arr[i], num_subjects)
+        dithered_isocomp_arr[i] = normalize_dither_compositions(isocomp_arr[i], num_subjects)
     return dithered_isocomp_arr
 
 
@@ -83,8 +83,8 @@ def normalize_dither_compositions(mat, num_subjects):
 
         for i in range(len(mat[0])):
             iso_name[i] = mat[0][i]
-            before[i] = mat[1][i] + truncnorm.rvs(loc=0, scale=0.01, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
-            after[i] = mat[2][i] + truncnorm.rvs(loc=0, scale=0.01, a=-mat[2][i], b=1 - mat[2][i], size=1)[0]
+            before[i] = mat[1][i] + truncnorm.rvs(loc=0, scale=1, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
+            after[i] = mat[2][i] + truncnorm.rvs(loc=0, scale=1, a=-mat[2][i], b=1 - mat[2][i], size=1)[0]
 
         for i in range(len(mat[0])):
             before[i] = before[i] / sum(before)
