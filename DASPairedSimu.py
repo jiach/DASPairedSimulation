@@ -4,6 +4,10 @@ import os
 import simu_pairdas
 from scipy.stats import uniform
 
+
+# TODO: LOWER RANDOM NOISE
+# TODO: REWRITE NULL PROPORTION -- FROM SAME VECTOR.
+
 cwd = os.getenv("HOME") + "/IdeaProjects/DASPairedSimulation/"
 pct_gene_picked = 20
 num_sub = 40
@@ -23,10 +27,17 @@ null_isocomp_arr = simu_pairdas.add_dither_to_isocomp(simu_pairdas.fetch_gene_is
 alt_isocomp_arr = simu_pairdas.add_dither_to_isocomp(simu_pairdas.fetch_gene_iso_comp(gene_arr, genes_picked[1]), num_sub)
 #print null_isocomp_arr['PDGFB']
 
-for gene_name in null_isocomp_arr.keys():
-    for sub_idx in range(len(null_isocomp_arr[gene_name])):
-        before = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000+uniform.rvs(loc=-500, scale=1000, size=1), null_isocomp_arr[gene_name][sub_idx][1])
-        after = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000+uniform.rvs(loc=-500, scale=1000, size=1), null_isocomp_arr[gene_name][sub_idx][2])
+# for gene_name in null_isocomp_arr.keys():
+#     for sub_idx in range(len(null_isocomp_arr[gene_name])):
+#         before = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000+uniform.rvs(loc=-500, scale=1000, size=1), null_isocomp_arr[gene_name][sub_idx][1])
+#         after = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000+uniform.rvs(loc=-500, scale=1000, size=1), null_isocomp_arr[gene_name][sub_idx][2])
+#
+#         for i in range(len(before)):
+#             print "\t".join([gene_name, str(sub_idx), str(before[i]), str(after[i])])
 
+for gene_name in alt_isocomp_arr.keys():
+    for sub_idx in range(len(alt_isocomp_arr[gene_name])):
+        before = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000+uniform.rvs(loc=-500, scale=1000, size=1), alt_isocomp_arr[gene_name][sub_idx][1])
+        after = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000+uniform.rvs(loc=-500, scale=1000, size=1), alt_isocomp_arr[gene_name][sub_idx][2])
         for i in range(len(before)):
             print "\t".join([gene_name, str(sub_idx), str(before[i]), str(after[i])])
