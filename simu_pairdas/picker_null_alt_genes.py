@@ -4,7 +4,7 @@ from scipy.stats import truncnorm
 from parser_isoform_comp import *
 
 
-def pick_null_alt_genes(gene_arr, pct):
+def pick_alt_genes(gene_arr, pct):
     """
 
    :rtype : list of lists of strings
@@ -14,31 +14,24 @@ the gene average hell d
 percentile of the gene average hell d
    """
     gene_max_helld = {}
-    gene_min_helld = {}
 
     for key, value in gene_arr.iteritems():
         min_max = value.getMinMaxHellingerDistance()
         gene_max_helld[key] = min_max['max']
-        cur_min_helld = min_max['min']
-        if cur_min_helld[0] >= 0:
-            gene_min_helld[key] = cur_min_helld
 
-    sorted_gene_by_max_helld = [list(x) for x in
-                                sorted(gene_max_helld.items(), key=operator.itemgetter(1))]
-    sorted_gene_by_min_helld = [list(x) for x in
-                                sorted(gene_min_helld.items(), key=operator.itemgetter(1))]
-    num_picked = int(len(sorted_gene_by_max_helld) * pct / 100)
+    sorted_gene_by_max_helld = sorted(gene_max_helld.items(), key=operator.itemgetter(1))
 
-    first_pct = sorted_gene_by_min_helld[0:num_picked]
-    last_pct = sorted_gene_by_max_helld[-num_picked:]
+    last_pct = sorted_gene_by_max_helld[-int(len(sorted_gene_by_max_helld) * pct / 100):]
 
-    first_names = set([x[0] for x in first_pct])
+    return last_pct
 
-    for i in range(len(last_pct)):
-        if last_pct[i][0] in first_names:
-            last_pct[i][0] += "_duplicate"
 
-    return [first_pct, last_pct]
+def pick_null_genes(gene_arr):
+    null_picked = []
+    for key, value in gene_arr.iteritems():
+        null_picked.append((key, value.getRandomDistance()))
+
+    return null_picked
 
 
 def fetch_gene_iso_comp(gene_arr, genes_picked):
@@ -52,28 +45,33 @@ pick_null_alt_genes function,
    :return: array of iso_comp
    """
     isocomp_arr = {}
+    print "Fetch Gene Iso Comp!"
     for i in range(len(genes_picked)):
-        if genes_picked[i][0].endswith("_duplicate"):
-            isocomp_arr[genes_picked[i][0]] = gene_arr.gene_arr[genes_picked[i][0].rstrip("_duplicate")].getIsoComp(
-                genes_picked[i][1][1])
-        else:
-            isocomp_arr[genes_picked[i][0]] = gene_arr.gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1])
+        isocomp = gene_arr.gene_arr[genes_picked[i][0]].getIsoComp(genes_picked[i][1][1])
+        if isocomp is not None:
+            isocomp_arr[genes_picked[i][0]] = isocomp
     return isocomp_arr
 
 
-def add_dither_to_isocomp(isocomp_arr, num_subjects):
+def add_dither_to_isocomp(isocomp_arr, num_subjects, type):
     """
     :param isocomp_arr:list of isoform compositions output from fetch_gene_iso_comp
     :param num_subjects: sample size that you need to multiply the original isocomp by.
     :return:  [[]]*num_subjects. inner [] =[[iso_name],[before],[after]]
     """
+    tot_len = len(isocomp_arr.keys())
+    print "Adding Dither to Isocomp! " + str(tot_len) + " Items!"
     dithered_isocomp_arr = {}
+    index = 0
     for i in isocomp_arr.keys():
-        dithered_isocomp_arr[i] = normalize_dither_compositions(isocomp_arr[i], num_subjects)
+        sys.stdout.write(u"Progress: {0:d}   \r".format(index))
+        sys.stdout.flush()
+        dithered_isocomp_arr[i] = normalize_dither_compositions(isocomp_arr[i], num_subjects, type)
+        index += 1
     return dithered_isocomp_arr
 
 
-def normalize_dither_compositions(mat, num_subjects):
+def normalize_dither_compositions(mat, num_subjects, type):
     arr_isocomp_bysub = [[]] * num_subjects
 
     for t in range(num_subjects):
@@ -83,8 +81,11 @@ def normalize_dither_compositions(mat, num_subjects):
 
         for i in range(len(mat[0])):
             iso_name[i] = mat[0][i]
-            before[i] = mat[1][i] + truncnorm.rvs(loc=0, scale=1, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
-            after[i] = mat[2][i] + truncnorm.rvs(loc=0, scale=1, a=-mat[2][i], b=1 - mat[2][i], size=1)[0]
+            before[i] = mat[1][i] + truncnorm.rvs(loc=0, scale=0.8, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
+            if type == "null":
+                after[i] = mat[1][i] + truncnorm.rvs(loc=0, scale=0.8, a=-mat[1][i], b=1 - mat[1][i], size=1)[0]
+            else:
+                after[i] = mat[2][i] + truncnorm.rvs(loc=0, scale=0.8, a=-mat[2][i], b=1 - mat[2][i], size=1)[0]
 
         for i in range(len(mat[0])):
             before[i] = before[i] / sum(before)

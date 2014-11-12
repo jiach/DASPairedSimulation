@@ -1,3 +1,5 @@
+import random
+
 __author__ = 'cheng'
 
 __author__ = 'chengjia'
@@ -18,8 +20,9 @@ def calcRenyiDiv(mat, alpha):
         return sum([1 / (1 - alpha) * (alpha * math.log(max(sys.float_info.min, mat[0][i]))) - (alpha - 1) * math.log(
             max(sys.float_info.min, mat[1][i])) for i in range(len(mat[0]))])
 
+
 def calcHellingerDistance(mat):
-    return math.sqrt(sum([(math.sqrt(mat[0][i])-math.sqrt(mat[1][i])) ** 2 for i in range(len(mat[0]))])/2)
+    return math.sqrt(sum([(math.sqrt(mat[0][i]) - math.sqrt(mat[1][i])) ** 2 for i in range(len(mat[0]))]) / 2)
 
 
 class IsoformPropArr:
@@ -55,7 +58,7 @@ class IsoformPropArr:
             return -1
 
     def __str__(self):
-        return "\n".join(["\t".join([y+":="+str(self.prop[x][y]) for y in self.prop[x].keys()]) for x in [0, 1]])
+        return "\n".join(["\t".join([y + ":=" + str(self.prop[x][y]) for y in self.prop[x].keys()]) for x in [0, 1]])
 
     def printAll(self):
         print(self.prop)
@@ -71,6 +74,17 @@ class IsoformPropArr:
         else:
             return -1
 
+    def verifyIsoNames(self, isoformNames):
+        isoformNames = list(isoformNames)
+        isoformNamesG0 = set(self.prop[0].keys())
+        isoformNamesG1 = set(self.prop[1].keys())
+
+        for x in isoformNames:
+            if not ((x in isoformNamesG0) & (x in isoformNamesG1)):
+                return False
+
+        return True
+
     def getProp(self, isoformNames):
         iso_prop_mat = ([], [], [])
         isoformNames = list(isoformNames)
@@ -79,6 +93,7 @@ class IsoformPropArr:
             iso_prop_mat[1].append(self.prop[0][isoformNames[i]])
             iso_prop_mat[2].append(self.prop[1][isoformNames[i]])
         return iso_prop_mat
+
 
 class IsoformPropParser:
     def __init__(self, line):
@@ -155,6 +170,12 @@ class IsoformPropParser:
 
         return min_max
 
+    def getRandomDistance(self):
+        all_hell_darr = self.getHellingerDistance(False)
+        rand_id = random.randint(0, len(all_hell_darr) - 1)
+        return all_hell_darr[rand_id], rand_id
+
+
     def getRenyiDiv(self, alpha):
         hellingerDist = []
         for value in self.subjectProp.values():
@@ -163,10 +184,10 @@ class IsoformPropParser:
         return hellingerDist
 
     def getIsoComp(self, subjectIdx):
-        if subjectIdx > self.getNumSubjects():
+        if subjectIdx > self.getNumSubjects() or (not self.subjectProp[subjectIdx].verifyIsoNames(self.isoformList)):
             return None
         else:
             return self.subjectProp[subjectIdx].getProp(self.isoformList)
 
     def __str__(self):
-        return "\n".join([str(x)+":\n"+self.subjectProp[x].__str__() for x in self.subjectProp.keys()])
+        return "\n".join([str(x) + ":\n" + self.subjectProp[x].__str__() for x in self.subjectProp.keys()])
