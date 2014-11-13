@@ -3,6 +3,7 @@ import operator
 from scipy.stats import truncnorm
 from parser_isoform_comp import *
 
+# TODO: 1 gene repeated 1000 times
 
 def pick_alt_genes(gene_arr, pct):
     """

@@ -43,6 +43,8 @@ null_fn = cwd+'simu_counts_null.txt'
 null_fh = open(null_fn, 'w')
 null_tot = len(null_isocomp_arr.keys())
 index = 0
+
+
 print("Output file NULL! Total: "+str(null_tot))
 for gene_name in null_isocomp_arr.keys():
     sys.stdout.write(u"Progress: {0:d}   \r".format(index))
@@ -57,20 +59,20 @@ for gene_name in null_isocomp_arr.keys():
 
 null_fh.close()
 
-alt_fn = cwd + 'simu_counts_alt.txt'
-alt_fh = open(alt_fn, 'w')
-alt_tot = len(alt_isocomp_arr.keys())
-index = 0
-print("Output file ALT! Total: "+str(alt_tot))
-for gene_name in alt_isocomp_arr.keys():
-    sys.stdout.write(u"Progress: {0:d}   \r".format(index))
-    sys.stdout.flush()
-    index +=1
-    for sub_idx in range(len(alt_isocomp_arr[gene_name])):
-        before = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000 + uniform.rvs(loc=-500, scale=1000, size=1),
-                                                                    alt_isocomp_arr[gene_name][sub_idx][1])
-        after = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000 + uniform.rvs(loc=-500, scale=1000, size=1),
-                                                                   alt_isocomp_arr[gene_name][sub_idx][2])
-        for i in range(len(before)):
-            alt_fh.write("\t".join([gene_name, str(sub_idx), str(before[i]), str(after[i])]) + "\n")
-alt_fh.close()
+# alt_fn = cwd + 'simu_counts_alt.txt'
+# alt_fh = open(alt_fn, 'w')
+# alt_tot = len(alt_isocomp_arr.keys())
+# index = 0
+# print("Output file ALT! Total: "+str(alt_tot))
+# for gene_name in alt_isocomp_arr.keys():
+#     sys.stdout.write(u"Progress: {0:d}   \r".format(index))
+#     sys.stdout.flush()
+#     index +=1
+#     for sub_idx in range(len(alt_isocomp_arr[gene_name])):
+#         before = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000 + uniform.rvs(loc=-500, scale=1000, size=1),
+#                                                                     alt_isocomp_arr[gene_name][sub_idx][1])
+#         after = gene_anno_arr.gene_arr[gene_name].getIsoReadCounts(5000 + uniform.rvs(loc=-500, scale=1000, size=1),
+#                                                                    alt_isocomp_arr[gene_name][sub_idx][2])
+#         for i in range(len(before)):
+#             alt_fh.write("\t".join([gene_name, str(sub_idx), str(before[i]), str(after[i])]) + "\n")
+# alt_fh.close()
